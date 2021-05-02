@@ -1,11 +1,15 @@
+import {ReactKeycloakProvider} from "@react-keycloak/web";
+import keycloak from "./keycloak";
+import {BrowserRouter} from "react-router-dom";
+import Main from "./pages/Main";
 
 function App() {
   return (
-    <div>
-      <p>
-        hello
-      </p>
-    </div>
+    <ReactKeycloakProvider authClient={keycloak}>
+      <BrowserRouter>
+        <Main/>
+      </BrowserRouter>
+    </ReactKeycloakProvider>
   );
 }
 
