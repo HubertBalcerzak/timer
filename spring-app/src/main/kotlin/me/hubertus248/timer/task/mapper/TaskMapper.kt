@@ -9,8 +9,9 @@ import org.jetbrains.exposed.sql.*
 
 class TaskMapper {
 
-    fun getTasks(pageable: Pageable): Page<Task> =
-        Tasks.selectAll()
+    fun getTasks(pageable: Pageable, query: String?): Page<Task> =
+        (if (query == null) Tasks.selectAll()
+        else Tasks.select { Tasks.name like "%$query%" })
             .limit(pageable.pageSize, offset = ((pageable.page - 1) * pageable.pageSize).toLong())
             .orderBy(Tasks.id)
             .map { Task(it[Tasks.id].value, it[Tasks.name]) }

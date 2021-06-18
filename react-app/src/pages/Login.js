@@ -1,4 +1,4 @@
-import {Button, Card, Container, makeStyles, Typography} from "@material-ui/core";
+import {Box, Button, Card, Container, makeStyles, Typography} from "@material-ui/core";
 import {useCallback} from "react";
 import {useKeycloak} from "@react-keycloak/web";
 
@@ -32,9 +32,11 @@ const Login = () => {
   return (
     <Container className={classes.container}>
       <Card className={classes.card}>
-        <Typography variant={"h5"} className={classes.flexGrow}>
-          Sign in to continue
-        </Typography>
+        <Box className={classes.flexGrow} display={"flex"} justifyContent={"center"}>
+          <Typography variant={"h5"}>
+            Sign in to continue
+          </Typography>
+        </Box>
         <Button variant={"contained"} color={"primary"} onClick={login}>Sign in with Keycloak</Button>
       </Card>
 

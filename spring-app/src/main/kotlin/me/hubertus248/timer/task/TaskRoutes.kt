@@ -1,7 +1,6 @@
 package me.hubertus248.timer.task
 
 import io.ktor.application.*
-import io.ktor.features.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
@@ -17,8 +16,9 @@ import me.hubertus248.timer.task.service.TaskService
 fun Route.taskRouting(taskService: TaskService) {
     route("/api/tasks") {
         get {
-            val pageable = call.receive<Pageable>()
-            call.respond(taskService.getTasks(pageable))
+            val pageable = Pageable.receive(call)
+            val query = call.parameters["query"]
+            call.respond(taskService.getTasks(pageable, query).map { it.konvert(TaskDTO::class) })
         }
 
         get("{id}") {

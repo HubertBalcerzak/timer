@@ -13,7 +13,7 @@ interface TaskService {
 
     fun getTask(taskId: Long): Task
 
-    fun getTasks(pageable: Pageable): Page<Task>
+    fun getTasks(pageable: Pageable, query: String?): Page<Task>
 
     fun createTask(createTask: CreateTask): Task
 
@@ -25,11 +25,13 @@ interface TaskService {
 class TaskServiceImpl(private val taskMapper: TaskMapper, private val taskValidationService: TaskValidationService) :
     TaskService {
 
-    override fun getTask(taskId: Long): Task =
+    override fun getTask(taskId: Long): Task = transaction {
         taskMapper.getTask(taskId) ?: throw NotFoundException()
+    }
 
-    override fun getTasks(pageable: Pageable): Page<Task> =
-        taskMapper.getTasks(pageable)
+    override fun getTasks(pageable: Pageable, query: String?): Page<Task> = transaction {
+        taskMapper.getTasks(pageable, query)
+    }
 
     override fun createTask(createTask: CreateTask): Task = transaction {
         taskMapper.createTask(createTask)
@@ -42,7 +44,7 @@ class TaskServiceImpl(private val taskMapper: TaskMapper, private val taskValida
         taskMapper.getTask(taskId) ?: throw SystemException()
     }
 
-    override fun deleteTask(taskId: Long) {
+    override fun deleteTask(taskId: Long) = transaction {
         taskValidationService.checkTaskExists(taskId)
         taskMapper.deleteTask(taskId)
     }

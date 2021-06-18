@@ -1,5 +1,8 @@
 package me.hubertus248.timer.common.pagination
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class Page<T>(
     val page: Int,
     val pageSize: Int,
