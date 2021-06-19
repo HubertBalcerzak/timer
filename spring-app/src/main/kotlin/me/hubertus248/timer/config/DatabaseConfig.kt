@@ -6,17 +6,20 @@ import com.zaxxer.hikari.HikariDataSource
 import io.ktor.application.*
 import io.ktor.util.*
 import org.jetbrains.exposed.sql.Database
+import org.koin.ktor.ext.inject
 
 @OptIn(KtorExperimentalAPI::class)
-fun Application.configureDatabase(){
+fun Application.configureDatabase() {
+    val properties: DatasourceProperties by inject()
+
     val config = HikariConfig().apply {
-        driverClassName = "org.postgresql.Driver"
-        jdbcUrl = "jdbc:postgresql://localhost/timer"
+        driverClassName = properties.driver
+        jdbcUrl = properties.url
         maximumPoolSize = 3
         isAutoCommit = false
         transactionIsolation = "TRANSACTION_REPEATABLE_READ"
-        password = "password"
-        username = "postgres"
+        password = properties.password
+        username = properties.username
         validate()
     }
     val database = HikariDataSource(config)

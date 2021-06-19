@@ -5,6 +5,7 @@ import {CssBaseline} from "@material-ui/core";
 
 const Main = () => {
   const {keycloak} = useKeycloak()
+
   return (
     <>
       <CssBaseline/>
