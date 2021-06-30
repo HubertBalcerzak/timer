@@ -6,5 +6,5 @@ import org.jetbrains.exposed.sql.Column
 
 object Tasks : LongIdTable() {
     val name: Column<String> = varchar("name", 128)
-    val userId: Column<Long> = long("userId").references(Users.id)
+    val userId: Column<Long> = long("userid").references(Users.id)
 }

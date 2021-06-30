@@ -2,8 +2,9 @@ import {Box, CircularProgress, makeStyles, TextField} from "@material-ui/core";
 import {Autocomplete, createFilterOptions} from "@material-ui/lab";
 import {useEffect, useState} from "react";
 import apiCall from "../../apiCall";
-import {useQuery} from "react-query";
+import {useMutation, useQuery, useQueryClient} from "react-query";
 import {useDebounce} from "react-use";
+import {addTask, createTask, GET_TASKS_TODAY} from "../../api/tasks";
 
 const useStyles = makeStyles((theme) => ({
   fullWidth: {
@@ -17,26 +18,44 @@ const search = async ({queryKey}) => {
   return await res.json()
 }
 
-const TaskCreator = ({createTask, addTask}) => {
+const TaskCreator = () => {
 
   const classes = useStyles()
   const filter = createFilterOptions();
   const [open, setOpen] = useState(false);
   const [searchText, setSearchText] = useState("")
   const [searchTextQuery, setSearchTextQuery] = useState("")
+  const queryClient = useQueryClient()
 
   useDebounce(() => {
-      setSearchTextQuery(searchText)
+    setSearchTextQuery(searchText)
   }, 500, [searchText])
 
-  const query = useQuery(["searchTasks", searchTextQuery], search)
-  console.log(query)
+  const searchTasksQuery = useQuery(["searchTasks", searchTextQuery], search)
+
+  const addTaskQuery = useMutation(addTask, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(GET_TASKS_TODAY)
+    },
+    onSettled: () => {
+      setSearchText("")
+    }
+  })
+
+  const createTaskQuery = useMutation(createTask, {
+    onSuccess: (createdTask) => {
+      console.log(createdTask)
+      addTaskQuery.mutate(createdTask)
+    }
+  })
+
   const handleOnChange = (event, newValue) => {
     if (newValue && newValue.inputValue) {
-      createTask(newValue.inputValue)
+      createTaskQuery.mutate(newValue.inputValue)
     } else if (newValue) {
-      addTask(newValue)
+      addTaskQuery.mutate(newValue)
     }
+    setSearchText("")
   }
 
   const handleFilterOptions = (options, params) => {
@@ -49,20 +68,20 @@ const TaskCreator = ({createTask, addTask}) => {
 
   return (
     <Box>
-      {query.isLoading ? <CircularProgress color="inherit" size={20}/> : null}
+      {searchTasksQuery.isLoading ? <CircularProgress color="inherit" size={20}/> : null}
       <Autocomplete
         renderInput={(params) => <TextField label={"Add task"} className={classes.fullWidth} {...params}/>}
-        options={query.data?.items ?? []}
+        options={searchTasksQuery.data?.items ?? []}
         filterOptions={handleFilterOptions}
-        getOptionLabel={option => option.name}
+        getOptionLabel={option => option?.name ?? ""}
         onChange={handleOnChange}
         open={open}
         onOpen={() => setOpen(true)}
         onClose={() => setOpen(false)}
-        loading={query.isLoading}
+        loading={searchTasksQuery.isLoading}
         inputValue={searchText}
         onInputChange={(event, newValue) => setSearchText(newValue)}
-
+        value={""}
       />
     </Box>
   )

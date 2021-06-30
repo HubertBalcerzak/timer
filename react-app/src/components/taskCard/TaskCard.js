@@ -2,6 +2,8 @@ import {Box, Button, Card, makeStyles, Typography} from "@material-ui/core";
 import TaskItem from "./TaskItem";
 import TaskCreator from "./TaskCreator";
 import apiCall from "../../apiCall";
+import {useQuery} from "react-query";
+import {GET_TASKS_TODAY, getTasksToday} from "../../api/tasks";
 
 const useStyles = makeStyles(theme => ({
   flexGrow: {
@@ -19,11 +21,7 @@ const TaskCard = () => {
     console.log(task)
   }
 
-  const createTask = (newTaskName) => {
-    apiCall("/api/tasks", {method: "POST", body: JSON.stringify({name: newTaskName})})
-      .then(r => r.json())
-      .then(r => console.log(r))
-  }
+  const tasks = useQuery(GET_TASKS_TODAY, getTasksToday)
 
   return (
     <Box m={3}>
@@ -31,12 +29,8 @@ const TaskCard = () => {
         <Typography variant={"h6"} className={classes.flexGrow}>Tasks</Typography>
         <Button variant={"contained"} color={"primary"}>Stop</Button>
       </Box>
-      <TaskItem taskName={"task1"}/>
-      <TaskItem taskName={"task1"}/>
-      <TaskItem taskName={"task1"}/>
-      <TaskItem taskName={"task1"}/>
-      <TaskItem taskName={"task1"}/>
-      <TaskCreator addTask={addTask} createTask={createTask}/>
+      {tasks.isSuccess && tasks.data.map(task => <TaskItem taskName={task.name} key={task.id}/>)}
+      <TaskCreator addTask={addTask}/>
     </Box>
   )
 }

@@ -1,12 +1,13 @@
 package me.hubertus248.timer
 
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
 import io.ktor.http.*
+import io.ktor.jackson.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import io.ktor.serialization.*
 import me.hubertus248.timer.common.dto.ErrorDTO
 import me.hubertus248.timer.config.configureCors
 import me.hubertus248.timer.config.configureDatabase
@@ -30,7 +31,9 @@ fun Application.module(testing: Boolean = false) {
     configureCors()
 
     install(ContentNegotiation) {
-        json()
+        jackson {
+            registerModule(JavaTimeModule())
+        }
     }
     install(CallLogging) {
         level = Level.DEBUG

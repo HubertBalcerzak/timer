@@ -26,7 +26,8 @@ class UserServiceImpl : UserService, KoinComponent {
         false
     }
 
-    override fun getUserId(principal: KeycloakPrincipal): Long =
+    override fun getUserId(principal: KeycloakPrincipal): Long = transaction {
         userMapper.getUserId(principal.subject) ?: throw UnauthorizedException()
+    }
 
 }

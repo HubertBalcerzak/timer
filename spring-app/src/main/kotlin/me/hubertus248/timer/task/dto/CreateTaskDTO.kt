@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 import me.hubertus248.timer.validation.isNotBlank
 import me.hubertus248.timer.validation.validateAndThrowOnFailure
 
-@Serializable
 data class CreateTaskDTO(val name: String) {
     init {
         Validation<CreateTaskDTO> {
