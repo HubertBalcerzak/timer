@@ -1,10 +1,10 @@
-import {Box, CircularProgress, makeStyles, TextField} from "@material-ui/core";
+import {Box, CircularProgress, makeStyles, TextField, Typography} from "@material-ui/core";
 import {Autocomplete, createFilterOptions} from "@material-ui/lab";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import apiCall from "../../apiCall";
 import {useMutation, useQuery, useQueryClient} from "react-query";
 import {useDebounce} from "react-use";
-import {addTask, createTask, GET_TASKS_TODAY} from "../../api/tasks";
+import {addTask, createTask, GET_TASKS} from "../../api/tasks";
 
 const useStyles = makeStyles((theme) => ({
   fullWidth: {
@@ -14,6 +14,7 @@ const useStyles = makeStyles((theme) => ({
 
 const search = async ({queryKey}) => {
   const [, searchText] = queryKey
+  await new Promise(r => setTimeout(r, 2000));
   const res = await apiCall("/api/tasks?query=" + searchText)
   return await res.json()
 }
@@ -35,7 +36,7 @@ const TaskCreator = () => {
 
   const addTaskQuery = useMutation(addTask, {
     onSuccess: () => {
-      queryClient.invalidateQueries(GET_TASKS_TODAY)
+      queryClient.invalidateQueries(GET_TASKS)
     },
     onSettled: () => {
       setSearchText("")
@@ -68,9 +69,20 @@ const TaskCreator = () => {
 
   return (
     <Box>
-      {searchTasksQuery.isLoading ? <CircularProgress color="inherit" size={20}/> : null}
       <Autocomplete
-        renderInput={(params) => <TextField label={"Add task"} className={classes.fullWidth} {...params}/>}
+        renderInput={(params) => <TextField
+          label={"Add task"}
+          className={classes.fullWidth}
+          {...params}
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {searchTasksQuery.isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}/>}
         options={searchTasksQuery.data?.items ?? []}
         filterOptions={handleFilterOptions}
         getOptionLabel={option => option?.name ?? ""}

@@ -1,9 +1,10 @@
 import apiCall from "../apiCall";
 
-const GET_TASKS_TODAY = "getTasksToday"
+const GET_TASKS = "getTasks"
 
-const getTasksToday = async (queryKey) => {
-  const response = await apiCall("/api/tasks/day?date=" + new Date().toISOString())
+const getTasks = async ({queryKey}) => {
+  const [, date] = queryKey
+  const response = await apiCall("/api/tasks/day?date=" + date.toISOString())
   return await response.json()
 }
 
@@ -22,4 +23,4 @@ const createTask = async (taskName) => {
   return await response.json()
 }
 
-export {GET_TASKS_TODAY, getTasksToday, addTask, createTask}
+export {GET_TASKS, getTasks, addTask, createTask}

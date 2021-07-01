@@ -1,9 +1,8 @@
-import {Box, Button, Card, makeStyles, Typography} from "@material-ui/core";
+import {Box, Button, makeStyles, Typography} from "@material-ui/core";
 import TaskItem from "./TaskItem";
 import TaskCreator from "./TaskCreator";
-import apiCall from "../../apiCall";
 import {useQuery} from "react-query";
-import {GET_TASKS_TODAY, getTasksToday} from "../../api/tasks";
+import {GET_TASKS, getTasks} from "../../api/tasks";
 
 const useStyles = makeStyles(theme => ({
   flexGrow: {
@@ -14,14 +13,14 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const TaskCard = () => {
+const TaskCard = ({selectedDate}) => {
   const classes = useStyles()
 
   const addTask = (task) => {
     console.log(task)
   }
 
-  const tasks = useQuery(GET_TASKS_TODAY, getTasksToday)
+  const tasks = useQuery([GET_TASKS, selectedDate], getTasks)
 
   return (
     <Box m={3}>
