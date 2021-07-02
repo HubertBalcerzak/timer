@@ -12,6 +12,7 @@ import me.hubertus248.timer.common.dto.ErrorDTO
 import me.hubertus248.timer.config.configureCors
 import me.hubertus248.timer.config.configureDatabase
 import me.hubertus248.timer.config.configureExceptionHandler
+import me.hubertus248.timer.event.routes.eventRouting
 import me.hubertus248.timer.koin.configureKoin
 import me.hubertus248.timer.security.keycloak
 import me.hubertus248.timer.task.service.TaskService
@@ -54,5 +55,6 @@ fun Application.module(testing: Boolean = false) {
     routing {
         taskRouting(taskService)
         userRouting()
+        eventRouting()
     }
 }

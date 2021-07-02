@@ -14,7 +14,6 @@ const useStyles = makeStyles((theme) => ({
 
 const search = async ({queryKey}) => {
   const [, searchText] = queryKey
-  await new Promise(r => setTimeout(r, 2000));
   const res = await apiCall("/api/tasks?query=" + searchText)
   return await res.json()
 }

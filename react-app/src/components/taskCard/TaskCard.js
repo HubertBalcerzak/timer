@@ -1,8 +1,9 @@
 import {Box, Button, makeStyles, Typography} from "@material-ui/core";
 import TaskItem from "./TaskItem";
 import TaskCreator from "./TaskCreator";
-import {useQuery} from "react-query";
+import {useMutation, useQuery} from "react-query";
 import {GET_TASKS, getTasks} from "../../api/tasks";
+import {stopEvent} from "../../api/events";
 
 const useStyles = makeStyles(theme => ({
   flexGrow: {
@@ -22,13 +23,19 @@ const TaskCard = ({selectedDate}) => {
 
   const tasks = useQuery([GET_TASKS, selectedDate], getTasks)
 
+  const stopEventQuery = useMutation(stopEvent)
+
+  const handleOnStop = () => {
+    stopEventQuery.mutate(undefined)
+  }
+
   return (
     <Box m={3}>
       <Box display={"flex"} className={classes.titleSpacer}>
         <Typography variant={"h6"} className={classes.flexGrow}>Tasks</Typography>
-        <Button variant={"contained"} color={"primary"}>Stop</Button>
+        <Button variant={"contained"} color={"primary"} onClick={handleOnStop}>Stop</Button>
       </Box>
-      {tasks.isSuccess && tasks.data.map(task => <TaskItem taskName={task.name} key={task.id}/>)}
+      {tasks.isSuccess && tasks.data.map(task => <TaskItem taskName={task.name} taskId={task.id} key={task.id}/>)}
       <TaskCreator addTask={addTask}/>
     </Box>
   )
