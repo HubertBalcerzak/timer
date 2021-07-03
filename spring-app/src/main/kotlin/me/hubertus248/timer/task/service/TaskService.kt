@@ -8,6 +8,7 @@ import me.hubertus248.timer.security.KeycloakPrincipal
 import me.hubertus248.timer.task.mapper.TaskMapper
 import me.hubertus248.timer.task.model.AddDayTask
 import me.hubertus248.timer.task.model.CreateTask
+import me.hubertus248.timer.task.model.DayTask
 import me.hubertus248.timer.task.model.Task
 import me.hubertus248.timer.user.service.UserService
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -22,7 +23,7 @@ interface TaskService {
 
     fun getTasks(pageable: Pageable, query: String?, principal: KeycloakPrincipal): Page<Task>
 
-    fun getTasks(date: LocalDate, principal: KeycloakPrincipal): List<Task>
+    fun getDayTasks(date: LocalDate, principal: KeycloakPrincipal): List<DayTask>
 
     fun createTask(createTask: CreateTask, principal: KeycloakPrincipal): Task
 
@@ -48,7 +49,7 @@ class TaskServiceImpl : TaskService, KoinComponent {
         taskMapper.getTasks(pageable, query, userService.getUserId(principal))
     }
 
-    override fun getTasks(date: LocalDate, principal: KeycloakPrincipal) = transaction {
+    override fun getDayTasks(date: LocalDate, principal: KeycloakPrincipal) = transaction {
         taskMapper.getTasks(date, userService.getUserId(principal))
     }
 

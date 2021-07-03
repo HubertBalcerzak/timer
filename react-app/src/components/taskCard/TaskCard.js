@@ -4,6 +4,7 @@ import TaskCreator from "./TaskCreator";
 import {useMutation, useQuery} from "react-query";
 import {GET_TASKS, getTasks} from "../../api/tasks";
 import {stopEvent} from "../../api/events";
+import {useInterval} from "react-use";
 
 const useStyles = makeStyles(theme => ({
   flexGrow: {
@@ -35,7 +36,7 @@ const TaskCard = ({selectedDate}) => {
         <Typography variant={"h6"} className={classes.flexGrow}>Tasks</Typography>
         <Button variant={"contained"} color={"primary"} onClick={handleOnStop}>Stop</Button>
       </Box>
-      {tasks.isSuccess && tasks.data.map(task => <TaskItem taskName={task.name} taskId={task.id} key={task.id}/>)}
+      {tasks.isSuccess && tasks.data.map(task => <TaskItem task={task} key={task.id}/>)}
       <TaskCreator addTask={addTask}/>
     </Box>
   )

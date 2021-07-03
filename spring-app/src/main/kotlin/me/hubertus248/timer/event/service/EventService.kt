@@ -43,7 +43,7 @@ class EventServiceImpl : EventService, KoinComponent {
         if (eventMapper.isEventOpen(userId)) {
             closeOpenEvent(principal, Instant.now())
         }
-        eventMapper.startEvent(startEvent.day, Instant.now(), userId)
+        eventMapper.startEvent(startEvent.day, Instant.now(), startEvent.taskId)
             .also { log.info("Event for task ${startEvent.taskId} started. ID: $it") }
     }
 

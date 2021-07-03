@@ -1,12 +1,15 @@
 package me.hubertus248.timer.event.mapper
 
 import me.hubertus248.timer.event.mapper.tables.Events
+import me.hubertus248.timer.event.mapper.tables.Events.end
+import me.hubertus248.timer.event.mapper.tables.Events.start
 import me.hubertus248.timer.event.model.Event
 import me.hubertus248.timer.task.mapper.tables.Tasks
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.update
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 
@@ -54,4 +57,13 @@ class EventMapper {
             .select { (Tasks.userId eq userId) and (Events.end eq null) }
             .count() > 0
 
+    fun isEventForTaskOpen(taskId: Long, day: LocalDate): Boolean =
+        Events.select { (Events.taskId eq taskId) and (Events.day eq day) and (Events.end eq null) }
+            .count() > 0
+
+    fun getTaskDuration(taskId: Long, day: LocalDate): Duration =
+        Events.slice(Events.start, Events.end)
+            .select { (Events.taskId eq taskId) and (Events.day eq day) }
+            .map { Duration.between(it[start], it[end] ?: Instant.now()) }
+            .reduceOrNull { duration1, duration2 -> duration1.plus(duration2) } ?: Duration.ZERO
 }

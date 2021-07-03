@@ -2,14 +2,20 @@ package me.hubertus248.timer.task.mapper
 
 import me.hubertus248.timer.common.pagination.Page
 import me.hubertus248.timer.common.pagination.Pageable
+import me.hubertus248.timer.event.mapper.EventMapper
 import me.hubertus248.timer.task.mapper.tables.DayTasks
 import me.hubertus248.timer.task.model.Task
 import me.hubertus248.timer.task.mapper.tables.Tasks
 import me.hubertus248.timer.task.model.CreateTask
+import me.hubertus248.timer.task.model.DayTask
 import org.jetbrains.exposed.sql.*
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.time.LocalDate
 
-class TaskMapper {
+class TaskMapper : KoinComponent {
+
+    private val eventMapper by inject<EventMapper>()
 
     fun getTasks(pageable: Pageable, query: String?, userId: Long): Page<Task> =
         (if (query == null) Tasks.selectAll()
@@ -61,14 +67,16 @@ class TaskMapper {
         }
     }
 
-    fun getTasks(date: LocalDate, userId: Long): List<Task> =
+    fun getTasks(day: LocalDate, userId: Long): List<DayTask> =
         (DayTasks innerJoin Tasks)
-            .select { (DayTasks.day eq date) and (Tasks.userId eq userId) }
+            .select { (DayTasks.day eq day) and (Tasks.userId eq userId) }
             .orderBy(DayTasks.createdAt)
             .map {
-                Task(
+                DayTask(
                     it[Tasks.id].value,
-                    it[Tasks.name]
+                    it[Tasks.name],
+                    eventMapper.isEventForTaskOpen(it[Tasks.id].value, day),
+                    eventMapper.getTaskDuration(it[Tasks.id].value, day)
                 )
             }
 

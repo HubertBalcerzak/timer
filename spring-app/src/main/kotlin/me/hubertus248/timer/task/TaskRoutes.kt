@@ -9,16 +9,11 @@ import io.ktor.routing.*
 import me.hubertus248.timer.common.exception.BadRequestException
 import me.hubertus248.timer.common.keycloakPrincipal
 import me.hubertus248.timer.common.pagination.Pageable
-import me.hubertus248.timer.task.dto.AddDayTaskDTO
-import me.hubertus248.timer.task.dto.CreateTaskDTO
-import me.hubertus248.timer.task.dto.TaskDTO
-import me.hubertus248.timer.task.dto.konvert
+import me.hubertus248.timer.task.dto.*
 import me.hubertus248.timer.task.model.AddDayTask
 import me.hubertus248.timer.task.model.CreateTask
 import me.hubertus248.timer.task.model.konvert
 import me.hubertus248.timer.task.service.TaskService
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
 fun Route.taskRouting(taskService: TaskService) {
@@ -39,8 +34,8 @@ fun Route.taskRouting(taskService: TaskService) {
 
             get("day") {
                 val date = ZonedDateTime.parse(call.parameters["date"]).toLocalDate() ?: throw BadRequestException()
-                taskService.getTasks(date, keycloakPrincipal)
-                    .map { it.konvert(TaskDTO::class) }
+                taskService.getDayTasks(date, keycloakPrincipal)
+                    .map { it.konvert(DayTaskDTO::class) }
                     .let { call.respond(it) }
             }
 

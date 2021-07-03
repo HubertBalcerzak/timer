@@ -1,5 +1,6 @@
 package me.hubertus248.timer
 
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.application.*
 import io.ktor.auth.*
@@ -34,6 +35,7 @@ fun Application.module(testing: Boolean = false) {
     install(ContentNegotiation) {
         jackson {
             registerModule(JavaTimeModule())
+            serializationConfig.withFeatures(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS)
         }
     }
     install(CallLogging) {
