@@ -9,5 +9,6 @@ data class Event(
     val start: Instant,
     val end: Instant?,
     val taskId: Long,
-    val taskName: String
+    val taskName: String,
+    val sessionId: Long
 )

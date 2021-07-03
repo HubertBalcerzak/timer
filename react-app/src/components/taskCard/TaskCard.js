@@ -3,7 +3,7 @@ import TaskItem from "./TaskItem";
 import TaskCreator from "./TaskCreator";
 import {useMutation, useQuery, useQueryClient} from "react-query";
 import {GET_TASKS, getTasks} from "../../api/tasks";
-import {stopEvent} from "../../api/events";
+import {GET_EVENTS, stopEvent} from "../../api/events";
 import {useInterval} from "react-use";
 
 const useStyles = makeStyles(theme => ({
@@ -24,11 +24,12 @@ const TaskCard = ({selectedDate}) => {
   }
 
   const tasks = useQuery([GET_TASKS, selectedDate], getTasks)
-  const anyTaskRunning = tasks.data.some((task) => task.running)
+  const anyTaskRunning = tasks?.data?.some((task) => task.running) ?? false
 
   const stopEventQuery = useMutation(stopEvent, {
     onSuccess: () => {
       queryClient.invalidateQueries(GET_TASKS)
+      queryClient.invalidateQueries(GET_EVENTS)
     }
   })
 

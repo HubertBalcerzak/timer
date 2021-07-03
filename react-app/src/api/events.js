@@ -16,4 +16,12 @@ const stopEvent = async () => {
   })
 }
 
-export {startEventNow, stopEvent}
+const GET_EVENTS = "getEvents"
+
+const getEvents = async ({queryKey}) => {
+  const [, date] = queryKey
+  const response = await apiCall("/api/events?date=" + date.toISOString())
+  return await response.json()
+}
+
+export {startEventNow, stopEvent, GET_EVENTS, getEvents}

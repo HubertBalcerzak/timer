@@ -10,4 +10,5 @@ object Events : LongIdTable() {
     val day = date("day")
     val start = timestamp("starttimestamp")
     val end = timestamp("endtimestamp").nullable()
+    val sessionId = long("sessionid").references(Sessions.id)
 }

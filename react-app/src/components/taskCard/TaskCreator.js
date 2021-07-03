@@ -77,7 +77,7 @@ const TaskCreator = () => {
             ...params.InputProps,
             endAdornment: (
               <>
-                {searchTasksQuery.isLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                {searchTasksQuery.isLoading ? <CircularProgress color="inherit" size={20}/> : null}
                 {params.InputProps.endAdornment}
               </>
             ),

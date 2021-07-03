@@ -39,7 +39,7 @@ const Dashboard = () => {
         <Box>
           <DatePicker selectedDate={selectedDate} setSelectedDate={setSelectedDate}/>
         </Box>
-        <Box className={classes.panelContainer} mt={4}>
+        <Box className={classes.panelContainer} mt={4} mb={4}>
           <Card className={classes.card}>
             <TaskCard selectedDate={selectedDate}/>
           </Card>

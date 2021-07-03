@@ -1,7 +1,7 @@
 import {Box, Chip, Divider, IconButton, makeStyles, Typography} from "@material-ui/core";
 import {PlayArrow, Stop} from "@material-ui/icons";
 import {useMutation, useQueryClient} from "react-query";
-import {startEventNow, stopEvent} from "../../api/events";
+import {GET_EVENTS, startEventNow, stopEvent} from "../../api/events";
 import {intervalToDuration} from "date-fns";
 import {useEffect, useState} from "react";
 import {useInterval} from "react-use";
@@ -42,12 +42,14 @@ const TaskItem = ({task}) => {
   const startEventQuery = useMutation(startEventNow, {
     onSuccess: () => {
       queryClient.invalidateQueries(GET_TASKS)
+      queryClient.invalidateQueries(GET_EVENTS)
     }
   })
 
   const stopEventQuery = useMutation(stopEvent, {
     onSuccess: () => {
       queryClient.invalidateQueries(GET_TASKS)
+      queryClient.invalidateQueries(GET_EVENTS)
     }
   })
 
