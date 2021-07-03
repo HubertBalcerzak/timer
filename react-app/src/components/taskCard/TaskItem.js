@@ -1,7 +1,7 @@
-import {Box, Divider, IconButton, makeStyles, Typography} from "@material-ui/core";
-import {PlayArrow} from "@material-ui/icons";
+import {Box, Chip, Divider, IconButton, makeStyles, Typography} from "@material-ui/core";
+import {PlayArrow, Stop} from "@material-ui/icons";
 import {useMutation, useQueryClient} from "react-query";
-import {startEventNow} from "../../api/events";
+import {startEventNow, stopEvent} from "../../api/events";
 import {intervalToDuration} from "date-fns";
 import {useEffect, useState} from "react";
 import {useInterval} from "react-use";
@@ -16,6 +16,9 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
     paddingBottom: theme.spacing(0.5),
     paddingTop: theme.spacing(0.5)
+  },
+  chip: {
+    marginRight: "1em"
   }
 }))
 
@@ -36,14 +39,24 @@ const TaskItem = ({task}) => {
 
   useEffect(() => setLocalDurationOffset(0), [task])
 
-  const startEvent = useMutation(startEventNow, {
+  const startEventQuery = useMutation(startEventNow, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(GET_TASKS)
+    }
+  })
+
+  const stopEventQuery = useMutation(stopEvent, {
     onSuccess: () => {
       queryClient.invalidateQueries(GET_TASKS)
     }
   })
 
   const handlePlayClicked = () => {
-    startEvent.mutate(task.id)
+    startEventQuery.mutate(task.id)
+  }
+
+  const handleStopClicked = () => {
+    stopEventQuery.mutate(null)
   }
 
   const duration = formatDuration(intervalToDuration({start: 0, end: (task.duration + localDurationOffset) * 1000}))
@@ -52,10 +65,17 @@ const TaskItem = ({task}) => {
     <>
       <Box className={classes.row}>
         <Typography className={classes.flexGrow}>{task.name}</Typography>
+        {task.running &&
+        <Chip className={classes.chip} label={"running"} size={"small"} color={"primary"} variant={"outlined"}/>}
         <Typography>{duration}</Typography>
+        {!task.running &&
         <IconButton onClick={handlePlayClicked}>
           <PlayArrow/>
-        </IconButton>
+        </IconButton>}
+        {task.running &&
+        <IconButton onClick={handleStopClicked}>
+          <Stop/>
+        </IconButton>}
       </Box>
       <Divider/>
     </>
