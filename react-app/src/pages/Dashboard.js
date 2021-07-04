@@ -5,49 +5,24 @@ import TaskCard from "../components/taskCard/TaskCard";
 import {useEffect, useState} from "react";
 import apiCall from "../apiCall";
 import DatePicker from "../components/DatePicker";
+import {TabPanel} from "@material-ui/lab";
 
-const useStyles = makeStyles(({
-  container: {
-    display: "flex",
-    marginRight: "10vw",
-    marginLeft: "10vw",
-    flexDirection: "column"
-  },
-  panelContainer: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: "10vw",
-    flexWrap: "wrap"
-  },
-  card: {
-    flexGrow: 1,
-    minWidth: "30em"
-  }
-}))
 
 const Dashboard = () => {
-  const classes = useStyles()
-  const [selectedDate, setSelectedDate] = useState(new Date())
-  useEffect(() => {//todo reload page if user created
-    apiCall("/api/users", {method: "POST"})
-  }, [])
+  const [tab, setTab] = useState(0)
 
   return (
     <>
-      <MenuBar/>
-      <Box mt={4} className={classes.container}>
-        <Box>
-          <DatePicker selectedDate={selectedDate} setSelectedDate={setSelectedDate}/>
-        </Box>
-        <Box className={classes.panelContainer} mt={4} mb={4}>
-          <Card className={classes.card}>
-            <TaskCard selectedDate={selectedDate}/>
-          </Card>
-          <Card className={classes.card}>
-            <DayHistoryCard selectedDate={selectedDate}/>
-          </Card>
-        </Box>
-      </Box>
+      <MenuBar tab={tab} setTab={setTab}/>
+      <TabPanel value={tab} index={0}>
+        qwe
+      </TabPanel>
+      <TabPanel value={tab} tabIndex={1}>
+        asd
+      </TabPanel>
+      <TabPanel value={tab} tabIndex={2}>
+        zxc
+      </TabPanel>
     </>
   )
 }
