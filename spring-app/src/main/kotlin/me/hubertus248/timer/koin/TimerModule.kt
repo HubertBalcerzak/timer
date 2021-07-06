@@ -2,6 +2,7 @@ package me.hubertus248.timer.koin
 
 import me.hubertus248.timer.config.DatasourceProperties
 import me.hubertus248.timer.config.EnvironmentProperties
+import me.hubertus248.timer.config.KeycloakProperties
 import me.hubertus248.timer.event.mapper.EventMapper
 import me.hubertus248.timer.event.mapper.SessionMapper
 import me.hubertus248.timer.event.service.EventService
@@ -30,4 +31,5 @@ val timerModule = module {
     single<EventService> { EventServiceImpl() }
     single { SessionMapper() }
     single<SessionService> { SessionServiceImpl() }
+    single { KeycloakProperties() }
 }

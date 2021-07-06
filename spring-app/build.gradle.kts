@@ -45,6 +45,7 @@ dependencies {
     implementation("com.github.HubertBalcerzak.konvert:konvert-api:0.1")
     kapt("com.github.HubertBalcerzak.konvert:konvert-processor:0.1")
     runtimeOnly("org.postgresql:postgresql:42.2.20")
+    runtimeOnly(files("build/artifact/react-app.jar"))
     testImplementation(kotlin("test-junit"))
     testImplementation("io.insert-koin:koin-test:$koinVersion")
 }
@@ -57,5 +58,18 @@ tasks.withType<KotlinCompile>() {
     kotlinOptions {
         jvmTarget = "11"
         freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+    }
+}
+
+tasks {
+    register<Zip>("packageFront") {
+        archiveFileName.set("react-app.jar")
+        entryCompression = ZipEntryCompression.STORED
+        archiveExtension.set("jar")
+        destinationDirectory.set(file("${project.projectDir}/build/artifact"))
+
+        from("../react-app/build") {
+            into("static")
+        }
     }
 }

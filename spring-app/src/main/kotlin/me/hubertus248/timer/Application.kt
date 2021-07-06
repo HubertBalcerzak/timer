@@ -6,10 +6,12 @@ import io.ktor.application.*
 import io.ktor.auth.*
 import io.ktor.features.*
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.jackson.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import me.hubertus248.timer.common.dto.ErrorDTO
+import me.hubertus248.timer.config.KeycloakProperties
 import me.hubertus248.timer.config.configureCors
 import me.hubertus248.timer.config.configureDatabase
 import me.hubertus248.timer.config.configureExceptionHandler
@@ -42,10 +44,12 @@ fun Application.module(testing: Boolean = false) {
         level = Level.DEBUG
     }
 
+    val keycloakProperties by inject<KeycloakProperties>()
+
     install(Authentication) {
         keycloak("keycloak") {
-            keycloakUrl = "https://keycloak.snet.ovh"
-            realm = "Test"
+            keycloakUrl = keycloakProperties.url
+            realm = keycloakProperties.realm
             onAuthFailure = { context, _ ->
                 context.call.respond(HttpStatusCode.Unauthorized, ErrorDTO("Unauthorized"))
             }
@@ -58,5 +62,9 @@ fun Application.module(testing: Boolean = false) {
         taskRouting(taskService)
         userRouting()
         eventRouting()
+        static("/") {
+            resources("static")
+            defaultResource("static/index.html")
+        }
     }
 }

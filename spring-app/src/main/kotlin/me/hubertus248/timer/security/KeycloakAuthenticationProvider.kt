@@ -80,7 +80,7 @@ class KeycloakAuthenticationProvider internal constructor(private val config: Co
             decodedJWT.getClaim("preferred_username").asString(),
             (realmRoles + resourceRoles).map { Role(it) },
             decodedJWT.getClaim("email_verified").asBoolean(),
-            decodedJWT.getClaim("aud").asList(String::class.java),
+            decodedJWT.getClaim("aud")?.asList(String::class.java) ?: emptyList(),
             decodedJWT
         )
     }
