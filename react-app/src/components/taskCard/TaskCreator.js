@@ -1,44 +1,47 @@
-import {Box, CircularProgress, makeStyles, TextField, Typography} from "@material-ui/core";
-import {Autocomplete, createFilterOptions} from "@material-ui/lab";
-import {useState} from "react";
-import apiCall from "../../apiCall";
-import {useMutation, useQuery, useQueryClient} from "react-query";
-import {useDebounce} from "react-use";
-import {addTask, createTask, GET_TASKS} from "../../api/tasks";
+import { Box, CircularProgress, makeStyles, TextField } from '@material-ui/core'
+import { Autocomplete, createFilterOptions } from '@material-ui/lab'
+import { useState } from 'react'
+import apiCall from '../../apiCall'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
+import { useDebounce } from 'react-use'
+import { addTask, createTask, GET_TASKS } from '../../api/tasks'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   fullWidth: {
-    width: "100%"
+    width: '100%'
   }
 }))
 
-const search = async ({queryKey}) => {
+const search = async ({ queryKey }) => {
   const [, searchText] = queryKey
-  const res = await apiCall("/api/tasks?query=" + searchText)
+  const res = await apiCall('/api/tasks?query=' + searchText)
   return await res.json()
 }
 
 const TaskCreator = () => {
-
   const classes = useStyles()
-  const filter = createFilterOptions();
-  const [open, setOpen] = useState(false);
-  const [searchText, setSearchText] = useState("")
-  const [searchTextQuery, setSearchTextQuery] = useState("")
+  const filter = createFilterOptions()
+  const [open, setOpen] = useState(false)
+  const [searchText, setSearchText] = useState('')
+  const [searchTextQuery, setSearchTextQuery] = useState('')
   const queryClient = useQueryClient()
 
-  useDebounce(() => {
-    setSearchTextQuery(searchText)
-  }, 500, [searchText])
+  useDebounce(
+    () => {
+      setSearchTextQuery(searchText)
+    },
+    500,
+    [searchText]
+  )
 
-  const searchTasksQuery = useQuery(["searchTasks", searchTextQuery], search)
+  const searchTasksQuery = useQuery(['searchTasks', searchTextQuery], search)
 
   const addTaskQuery = useMutation(addTask, {
     onSuccess: () => {
       queryClient.invalidateQueries(GET_TASKS)
     },
     onSettled: () => {
-      setSearchText("")
+      setSearchText('')
     }
   })
 
@@ -55,13 +58,13 @@ const TaskCreator = () => {
     } else if (newValue) {
       addTaskQuery.mutate(newValue)
     }
-    setSearchText("")
+    setSearchText('')
   }
 
   const handleFilterOptions = (options, params) => {
-    const filtered = filter(options, params);
-    if (params.inputValue !== "") {
-      filtered.push({name: `Create "${params.inputValue}"`, inputValue: params.inputValue})
+    const filtered = filter(options, params)
+    if (params.inputValue !== '') {
+      filtered.push({ name: `Create "${params.inputValue}"`, inputValue: params.inputValue })
     }
     return filtered
   }
@@ -69,22 +72,27 @@ const TaskCreator = () => {
   return (
     <Box>
       <Autocomplete
-        renderInput={(params) => <TextField
-          label={"Add task"}
-          className={classes.fullWidth}
-          {...params}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {searchTasksQuery.isLoading ? <CircularProgress color="inherit" size={20}/> : null}
-                {params.InputProps.endAdornment}
-              </>
-            ),
-          }}/>}
+        renderInput={(params) => (
+          <TextField
+            label={'Add task'}
+            className={classes.fullWidth}
+            {...params}
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {searchTasksQuery.isLoading ? (
+                    <CircularProgress color='inherit' size={20} />
+                  ) : null}
+                  {params.InputProps.endAdornment}
+                </>
+              )
+            }}
+          />
+        )}
         options={searchTasksQuery.data?.items ?? []}
         filterOptions={handleFilterOptions}
-        getOptionLabel={option => option?.name ?? ""}
+        getOptionLabel={(option) => option?.name ?? ''}
         onChange={handleOnChange}
         open={open}
         onOpen={() => setOpen(true)}
@@ -92,11 +100,10 @@ const TaskCreator = () => {
         loading={searchTasksQuery.isLoading}
         inputValue={searchText}
         onInputChange={(event, newValue) => setSearchText(newValue)}
-        value={""}
+        value={''}
       />
     </Box>
   )
 }
-
 
 export default TaskCreator
