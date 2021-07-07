@@ -2,10 +2,9 @@ package me.hubertus248.timer.event.mapper
 
 import me.hubertus248.timer.event.mapper.tables.Events
 import me.hubertus248.timer.event.mapper.tables.Sessions
+import me.hubertus248.timer.event.model.Session
 import me.hubertus248.timer.task.mapper.tables.Tasks
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
 import java.time.Instant
 import java.time.LocalDate
 
@@ -24,5 +23,29 @@ class SessionMapper {
             it[Sessions.userId] = userId
             it[Sessions.createdAt] = Instant.now()
         }.value
+
+    fun getEventSession(eventId: Long): Session =
+        Sessions.innerJoin(Events)
+            .select { Events.id eq eventId }
+            .first()
+            .asSession()
+
+    fun getDaySessions(day: LocalDate, userId: Long): List<Session> =
+        Sessions.select { (Sessions.day eq day) and (Sessions.userId eq userId) }
+            .orderBy(Sessions.createdAt)
+            .map { it.asSession() }
+
+
+    fun updateSession(sessionId: Long, startDateTime: Instant) =
+        Sessions.update({ Sessions.id eq sessionId }) {
+            it[Sessions.createdAt] = startDateTime
+        }
+
+    private fun ResultRow.asSession(): Session = Session(
+        this[Sessions.id].value,
+        this[Sessions.userId],
+        this[Sessions.day],
+        this[Sessions.createdAt]
+    )
 
 }

@@ -24,4 +24,22 @@ const getEvents = async ({queryKey}) => {
   return await response.json()
 }
 
-export {startEventNow, stopEvent, GET_EVENTS, getEvents}
+const updateEventStart = async ({eventId, dateTime}) => {
+  await apiCall(`/api/events/${eventId}`, {
+    method: 'POST',
+    body: JSON.stringify({
+      start: dateTime.toISOString()
+    })
+  })
+}
+
+const updateEventEnd = async ({eventId, dateTime}) => {
+  await apiCall(`/api/events/${eventId}`, {
+    method: 'POST',
+    body: JSON.stringify({
+      end: dateTime.toISOString()
+    })
+  })
+}
+
+export {startEventNow, stopEvent, GET_EVENTS, getEvents, updateEventStart, updateEventEnd}

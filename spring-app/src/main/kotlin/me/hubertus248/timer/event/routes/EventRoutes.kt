@@ -10,8 +10,10 @@ import me.hubertus248.timer.common.exception.BadRequestException
 import me.hubertus248.timer.common.keycloakPrincipal
 import me.hubertus248.timer.event.dto.DayEventsDTO
 import me.hubertus248.timer.event.dto.StartEventDTO
+import me.hubertus248.timer.event.dto.UpdateEventDTO
 import me.hubertus248.timer.event.dto.konvert
 import me.hubertus248.timer.event.model.StartEvent
+import me.hubertus248.timer.event.model.UpdateEvent
 import me.hubertus248.timer.event.model.konvert
 import me.hubertus248.timer.event.service.EventService
 import me.hubertus248.timer.task.service.TaskService
@@ -39,6 +41,13 @@ fun Route.eventRouting() {
                 eventService.getEvents(date, keycloakPrincipal)
                     .konvert(DayEventsDTO::class)
                     .let { call.respond(it) }
+            }
+            post("/{eventId}") {
+                val eventId = call.parameters["eventId"]?.toLongOrNull() ?: throw BadRequestException()
+                call.receive<UpdateEventDTO>()
+                    .konvert(UpdateEvent::class)
+                    .let { eventService.updateEvent(eventId, it, keycloakPrincipal) }
+                call.respond(HttpStatusCode.OK)
             }
         }
     }

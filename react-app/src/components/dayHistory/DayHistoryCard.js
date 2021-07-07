@@ -1,6 +1,6 @@
-import {Box, makeStyles, Typography} from "@material-ui/core";
+import {Box, makeStyles, TextField, Typography} from "@material-ui/core";
 import {useQuery, useQueryClient} from "react-query";
-import {GET_EVENTS, getEvents} from "../../api/events";
+import {GET_EVENTS, getEvents, updateEventEnd, updateEventStart} from "../../api/events";
 import {
   Timeline,
   TimelineConnector,
@@ -10,6 +10,7 @@ import {
   TimelineSeparator
 } from "@material-ui/lab";
 import {format} from "date-fns";
+import EventTimePicker from "./EventTimePicker";
 
 const useStyles = makeStyles(theme => ({
   taskName: {
@@ -20,6 +21,16 @@ const useStyles = makeStyles(theme => ({
 const formatDate = (epochSeconds) => {
   return format(new Date(epochSeconds * 1000), 'HH:mm:ss')
 }
+
+const getStartTimePicker = (ev) => (
+  <EventTimePicker selectedTime={new Date(ev.start * 1000)} eventId={ev.id}
+                   updateFunction={updateEventStart}/>
+)
+
+const getEndTimePicker = (ev) => (
+  <EventTimePicker selectedTime={new Date(ev.end * 1000)} eventId={ev.id}
+                   updateFunction={updateEventEnd}/>
+)
 
 const DayHistoryCard = ({selectedDate}) => {
   const classes = useStyles()
@@ -36,7 +47,11 @@ const DayHistoryCard = ({selectedDate}) => {
         <Timeline>
           {session.events.map(event =>
             <TimelineItem>
-              <TimelineOppositeContent>{formatDate(event.start)}</TimelineOppositeContent>
+              <TimelineOppositeContent>
+                <Box>
+                  {getStartTimePicker(event)}
+                </Box>
+              </TimelineOppositeContent>
               <TimelineSeparator>
                 <TimelineDot/>
                 <TimelineConnector/>
@@ -48,7 +63,7 @@ const DayHistoryCard = ({selectedDate}) => {
               </TimelineContent>
             </TimelineItem>)}
           <TimelineItem>
-            <TimelineOppositeContent>{session.events[session.events.length - 1].end ? formatDate(session.events[session.events.length - 1].end) : "Now"}</TimelineOppositeContent>
+            <TimelineOppositeContent>{session.events[session.events.length - 1].end ? getEndTimePicker(session.events[session.events.length - 1]) : "Now"}</TimelineOppositeContent>
             <TimelineSeparator>
               <TimelineDot/>
             </TimelineSeparator>

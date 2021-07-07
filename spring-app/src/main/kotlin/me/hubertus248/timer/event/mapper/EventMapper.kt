@@ -5,10 +5,7 @@ import me.hubertus248.timer.event.mapper.tables.Events.end
 import me.hubertus248.timer.event.mapper.tables.Events.start
 import me.hubertus248.timer.event.model.Event
 import me.hubertus248.timer.task.mapper.tables.Tasks
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.*
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
@@ -19,17 +16,7 @@ class EventMapper {
     fun getEvents(day: LocalDate, userId: Long) =
         Events.innerJoin(Tasks).select { (Events.day eq day) and (Tasks.userId eq userId) }
             .orderBy(start)
-            .map {
-                Event(
-                    it[Events.id].value,
-                    it[Events.day],
-                    it[start],
-                    it[end],
-                    it[Tasks.id].value,
-                    it[Tasks.name],
-                    it[Events.sessionId]
-                )
-            }
+            .map { it.asEvent() }
 
 
     fun startEvent(day: LocalDate, timestamp: Instant, taskId: Long, sessionId: Long): Long =
@@ -75,4 +62,38 @@ class EventMapper {
             .select { (end eq null) and (Tasks.userId eq userId) }
             .firstOrNull()
             ?.let { it[Events.sessionId] }
+
+    fun getEventExists(eventId: Long, userId: Long): Boolean =
+        Events.innerJoin(Tasks)
+            .select { (Events.id eq eventId) and (Tasks.userId eq userId) }
+            .count() > 0
+
+    fun getEventsInSession(sessionId: Long): List<Event> =
+        Events.innerJoin(Tasks)
+            .select { Events.sessionId eq sessionId }
+            .orderBy(start)
+            .map { it.asEvent() }
+
+    fun getEvent(eventId: Long): Event =
+        Events.innerJoin(Tasks)
+            .select { Events.id eq eventId }
+            .first()
+            .asEvent()
+
+    fun updateEvent(event: Event) =
+        Events.update({ Events.id eq event.id }) {
+            it[start] = event.start
+            it[end] = event.end
+        }
+
+
+    private fun ResultRow.asEvent(): Event = Event(
+        this[Events.id].value,
+        this[Events.day],
+        this[start],
+        this[end],
+        this[Tasks.id].value,
+        this[Tasks.name],
+        this[Events.sessionId]
+    )
 }
