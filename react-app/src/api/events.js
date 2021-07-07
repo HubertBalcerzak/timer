@@ -42,4 +42,10 @@ const updateEventEnd = async ({eventId, dateTime}) => {
   })
 }
 
-export {startEventNow, stopEvent, GET_EVENTS, getEvents, updateEventStart, updateEventEnd}
+const splitSession = async (eventId) => {
+  await apiCall(`/api/events/${eventId}/split`, {
+    method: 'POST'
+  })
+}
+
+export {startEventNow, stopEvent, GET_EVENTS, getEvents, updateEventStart, updateEventEnd, splitSession}

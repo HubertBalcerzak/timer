@@ -84,8 +84,8 @@ class EventMapper {
         Events.update({ Events.id eq event.id }) {
             it[start] = event.start
             it[end] = event.end
+            it[sessionId] = event.sessionId
         }
-
 
     private fun ResultRow.asEvent(): Event = Event(
         this[Events.id].value,

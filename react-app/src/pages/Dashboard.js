@@ -6,7 +6,7 @@ import {useEffect, useState} from "react";
 import apiCall from "../apiCall";
 import DatePicker from "../components/DatePicker";
 
-const useStyles = makeStyles(({
+const useStyles = makeStyles((theme) => ({
   container: {
     display: "flex",
     marginRight: "10vw",
@@ -14,10 +14,13 @@ const useStyles = makeStyles(({
     flexDirection: "column"
   },
   panelContainer: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: "10vw",
-    flexWrap: "wrap"
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gridColumnGap: "10vw",
+    gridRowGap: "100px",
+    [theme.breakpoints.down('md')]: {
+      gridTemplateColumns: "1fr"
+    }
   },
   card: {
     flexGrow: 1,

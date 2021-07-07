@@ -30,4 +30,5 @@ val timerModule = module {
     single<SessionService> { SessionServiceImpl() }
     single { KeycloakProperties() }
     single<EventValidationService> { EventValidationServiceImpl() }
+    single<SessionValidationService> { SessionValidationServiceImpl() }
 }

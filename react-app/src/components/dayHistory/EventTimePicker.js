@@ -1,22 +1,38 @@
 import {TimePicker} from "@material-ui/pickers";
-import {Box, CircularProgress, createMuiTheme, makeStyles, ThemeProvider} from "@material-ui/core";
+import {Box, CircularProgress, IconButton, makeStyles} from "@material-ui/core";
 import {useMutation, useQueryClient} from "react-query";
 import {GET_TASKS} from "../../api/tasks";
-import {GET_EVENTS} from "../../api/events";
+import {GET_EVENTS, splitSession} from "../../api/events";
 import {toast} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import {CallSplit} from "@material-ui/icons";
+import clsx from 'clsx'
 
 
 const useStyles = makeStyles((theme) => ({
   picker: {
     fontSize: 14,
-    width: "4em",
+    width: "3rem",
     "&::before": {
       border: "none"
+    },
+    "& input": {
+      padding: "0 0 7px"
     }
   },
   progress: {
     marginRight: theme.spacing(1)
+  },
+  splitButton: {
+    marginTop: '-5px'
+  },
+  hover: {
+    '& .showOnHover': {
+      display: "none"
+    },
+    '&:hover .showOnHover': {
+      display: "inline"
+    }
   }
 }))
 
@@ -36,22 +52,38 @@ const EventTimePicker = ({selectedTime, eventId, updateFunction}) => {
     }
   })
 
+  const splitSessionQuery = useMutation(splitSession, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(GET_TASKS)
+      queryClient.invalidateQueries(GET_EVENTS)
+    },
+    onError: () => {
+      toast.error("Unable to split session")
+    }
+  })
+
   const handleChange = (newTime) => {
     updateEventQuery.mutate({eventId: eventId, dateTime: newTime})
   }
 
+  const handleSplitSession = () => {
+    splitSessionQuery.mutate(eventId)
+  }
+
 
   return (
-    <>
+    <Box className={classes.hover}>
       {updateEventQuery.isLoading && <CircularProgress size={12} className={classes.progress}/>}
+      <IconButton size={"small"} className={clsx(classes.splitButton, 'showOnHover')} onClick={handleSplitSession}>
+        <CallSplit/>
+      </IconButton>
       <TimePicker
-        classesName={classes.picker}
         ampm={false}
         value={selectedTime}
         onChange={handleChange}
         InputProps={{className: classes.picker}}
       />
-    </>
+    </Box>
   )
 }
 

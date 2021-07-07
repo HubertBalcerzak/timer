@@ -17,11 +17,11 @@ class SessionMapper {
             .firstOrNull()
             ?.let { it[Sessions.id].value }
 
-    fun openSession(day: LocalDate, userId: Long): Long =
+    fun openSession(day: LocalDate, userId: Long, startDateTime: Instant = Instant.now()): Long =
         Sessions.insertAndGetId {
             it[Sessions.day] = day
             it[Sessions.userId] = userId
-            it[Sessions.createdAt] = Instant.now()
+            it[Sessions.createdAt] = startDateTime
         }.value
 
     fun getEventSession(eventId: Long): Session =
@@ -40,6 +40,10 @@ class SessionMapper {
         Sessions.update({ Sessions.id eq sessionId }) {
             it[Sessions.createdAt] = startDateTime
         }
+
+    fun isSessionExists(sessionId: Long, userId: Long): Boolean =
+        Sessions.select { (Sessions.id eq sessionId) and (Sessions.userId eq userId) }
+            .count() > 0
 
     private fun ResultRow.asSession(): Session = Session(
         this[Sessions.id].value,

@@ -16,6 +16,7 @@ import me.hubertus248.timer.event.model.StartEvent
 import me.hubertus248.timer.event.model.UpdateEvent
 import me.hubertus248.timer.event.model.konvert
 import me.hubertus248.timer.event.service.EventService
+import me.hubertus248.timer.event.service.SessionService
 import me.hubertus248.timer.task.service.TaskService
 import org.koin.ktor.ext.inject
 import java.time.Instant
@@ -23,6 +24,7 @@ import java.time.ZonedDateTime
 
 fun Route.eventRouting() {
     val eventService by inject<EventService>()
+    val sessionService by inject<SessionService>()
 
     authenticate("keycloak") {
         route("/api/events") {
@@ -47,6 +49,11 @@ fun Route.eventRouting() {
                 call.receive<UpdateEventDTO>()
                     .konvert(UpdateEvent::class)
                     .let { eventService.updateEvent(eventId, it, keycloakPrincipal) }
+                call.respond(HttpStatusCode.OK)
+            }
+            post("/{eventId}/split") {
+                val eventId = call.parameters["eventId"]?.toLongOrNull() ?: throw BadRequestException()
+                sessionService.splitSession(eventId, keycloakPrincipal)
                 call.respond(HttpStatusCode.OK)
             }
         }
