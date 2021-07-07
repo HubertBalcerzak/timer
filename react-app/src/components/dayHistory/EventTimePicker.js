@@ -1,18 +1,17 @@
-import {TimePicker} from "@material-ui/pickers";
-import {Box, CircularProgress, createMuiTheme, makeStyles, ThemeProvider} from "@material-ui/core";
-import {useMutation, useQueryClient} from "react-query";
-import {GET_TASKS} from "../../api/tasks";
-import {GET_EVENTS} from "../../api/events";
-import {toast} from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
-
+import { TimePicker } from '@material-ui/pickers'
+import { CircularProgress, makeStyles } from '@material-ui/core'
+import { useMutation, useQueryClient } from 'react-query'
+import { GET_TASKS } from '../../api/tasks'
+import { GET_EVENTS } from '../../api/events'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const useStyles = makeStyles((theme) => ({
   picker: {
     fontSize: 14,
-    width: "4em",
-    "&::before": {
-      border: "none"
+    width: '4em',
+    '&::before': {
+      border: 'none'
     }
   },
   progress: {
@@ -20,11 +19,9 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const EventTimePicker = ({selectedTime, eventId, updateFunction}) => {
-
+const EventTimePicker = ({ selectedTime, eventId, updateFunction }) => {
   const classes = useStyles()
   const queryClient = useQueryClient()
-
 
   const updateEventQuery = useMutation(updateFunction, {
     onSuccess: () => {
@@ -37,19 +34,18 @@ const EventTimePicker = ({selectedTime, eventId, updateFunction}) => {
   })
 
   const handleChange = (newTime) => {
-    updateEventQuery.mutate({eventId: eventId, dateTime: newTime})
+    updateEventQuery.mutate({ eventId: eventId, dateTime: newTime })
   }
-
 
   return (
     <>
-      {updateEventQuery.isLoading && <CircularProgress size={12} className={classes.progress}/>}
+      {updateEventQuery.isLoading && <CircularProgress size={12} className={classes.progress} />}
       <TimePicker
         classesName={classes.picker}
         ampm={false}
         value={selectedTime}
         onChange={handleChange}
-        InputProps={{className: classes.picker}}
+        InputProps={{ className: classes.picker }}
       />
     </>
   )
