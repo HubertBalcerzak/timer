@@ -1,8 +1,8 @@
-import apiCall from "../apiCall";
+import apiCall from '../apiCall'
 
 const startEventNow = async (taskId) => {
-  await apiCall("/api/events/start", {
-    method: "POST",
+  await apiCall('/api/events/start', {
+    method: 'POST',
     body: JSON.stringify({
       taskId: taskId,
       day: new Date().toISOString()
@@ -11,20 +11,20 @@ const startEventNow = async (taskId) => {
 }
 
 const stopEvent = async () => {
-  await apiCall("/api/events/end", {
-    method: "POST"
+  await apiCall('/api/events/end', {
+    method: 'POST'
   })
 }
 
-const GET_EVENTS = "getEvents"
+const GET_EVENTS = 'getEvents'
 
-const getEvents = async ({queryKey}) => {
+const getEvents = async ({ queryKey }) => {
   const [, date] = queryKey
-  const response = await apiCall("/api/events?date=" + date.toISOString())
+  const response = await apiCall('/api/events?date=' + date.toISOString())
   return await response.json()
 }
 
-const updateEventStart = async ({eventId, dateTime}) => {
+const updateEventStart = async ({ eventId, dateTime }) => {
   await apiCall(`/api/events/${eventId}`, {
     method: 'POST',
     body: JSON.stringify({
@@ -33,7 +33,7 @@ const updateEventStart = async ({eventId, dateTime}) => {
   })
 }
 
-const updateEventEnd = async ({eventId, dateTime}) => {
+const updateEventEnd = async ({ eventId, dateTime }) => {
   await apiCall(`/api/events/${eventId}`, {
     method: 'POST',
     body: JSON.stringify({
@@ -42,4 +42,4 @@ const updateEventEnd = async ({eventId, dateTime}) => {
   })
 }
 
-export {startEventNow, stopEvent, GET_EVENTS, getEvents, updateEventStart, updateEventEnd}
+export { startEventNow, stopEvent, GET_EVENTS, getEvents, updateEventStart, updateEventEnd }
