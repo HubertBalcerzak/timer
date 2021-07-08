@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const EventTimePicker = ({selectedTime, eventId, updateFunction}) => {
+const EventTimePicker = ({selectedTime, eventId, updateFunction, splitButton}) => {
 
   const classes = useStyles()
   const queryClient = useQueryClient()
@@ -76,9 +76,11 @@ const EventTimePicker = ({selectedTime, eventId, updateFunction}) => {
   return (
     <Box className={classes.hover}>
       {updateEventQuery.isLoading && <CircularProgress size={12} className={classes.progress}/>}
+      {splitButton &&
       <IconButton size={"small"} className={clsx(classes.splitButton, 'showOnHover')} onClick={handleSplitSession}>
         <CallSplit/>
-      </IconButton>
+      </IconButton>}
+
       <TimePicker
         ampm={false}
         value={selectedTime}

@@ -34,9 +34,9 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-const getStartTimePicker = (ev) => (
+const getStartTimePicker = (ev, index) => (
   <EventTimePicker selectedTime={new Date(ev.start * 1000)} eventId={ev.id}
-                   updateFunction={updateEventStart}/>
+                   updateFunction={updateEventStart} splitButton={index !== 0}/>
 )
 
 const getEndTimePicker = (ev) => (
@@ -70,11 +70,11 @@ const DayHistoryCard = ({selectedDate}) => {
       {getEventsQuery.isSuccess && getEventsQuery.data.sessions.map((session, index) =>
         <Box className={classes.hover}>
           <Timeline>
-            {session.events.map(event =>
+            {session.events.map((event, eventIndex) =>
               <TimelineItem>
                 <TimelineOppositeContent>
                   <Box>
-                    {getStartTimePicker(event)}
+                    {getStartTimePicker(event, eventIndex)}
                   </Box>
                 </TimelineOppositeContent>
                 <TimelineSeparator>

@@ -3,7 +3,6 @@ package me.hubertus248.timer.event.service
 import me.hubertus248.timer.common.exception.BadRequestException
 import me.hubertus248.timer.event.mapper.EventMapper
 import me.hubertus248.timer.event.mapper.SessionMapper
-import me.hubertus248.timer.event.model.Event
 import me.hubertus248.timer.event.model.Session
 import me.hubertus248.timer.security.KeycloakPrincipal
 import me.hubertus248.timer.user.service.UserService
@@ -59,19 +58,19 @@ class SessionServiceImpl : SessionService, KoinComponent {
         eventValidationService.checkEventExists(eventId, userId)
         val session = sessionMapper.getEventSession(eventId)
         val events = eventMapper.getEventsInSession(session.id)
-        val lastEvent = eventMapper.getEvent(eventId)
-        val index = events.indexOf(lastEvent)
+        val firstEvent = eventMapper.getEvent(eventId)
+        val index = events.indexOf(firstEvent)
 
-        if (index == events.size - 1) {
+        if (index == 0) {
             throw BadRequestException()
         }
-        val eventsToMove = events.subList(index + 1, events.size)
+        val eventsToMove = events.subList(index, events.size)
 
-        val newSessionId = sessionMapper.openSession(lastEvent.day, userId, eventsToMove.first().start)
+        val newSessionId = sessionMapper.openSession(firstEvent.day, userId, eventsToMove.first().start)
         eventsToMove.forEach {
             eventMapper.updateEvent(it.copy(sessionId = newSessionId))
         }
-        log.info("Session ${session.id} split on event ${lastEvent.id}")
+        log.info("Session ${session.id} split on event ${firstEvent.id}")
     }
 
     override fun mergeSessions(eventId: Long, principal: KeycloakPrincipal): Unit = transaction {
