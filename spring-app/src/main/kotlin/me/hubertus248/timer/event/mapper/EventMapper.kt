@@ -87,6 +87,22 @@ class EventMapper {
             it[sessionId] = event.sessionId
         }
 
+    fun getLastSessionEvent(sessionId: Long): Event =
+        Events.innerJoin(Tasks)
+            .select { Events.sessionId eq sessionId }
+            .orderBy(Events.start, SortOrder.DESC)
+            .limit(1)
+            .first()
+            .asEvent()
+
+    fun getFirstSessionEvent(sessionId: Long): Event =
+        Events.innerJoin(Tasks)
+            .select { Events.sessionId eq sessionId }
+            .orderBy(Events.start, SortOrder.ASC)
+            .limit(1)
+            .first()
+            .asEvent()
+
     private fun ResultRow.asEvent(): Event = Event(
         this[Events.id].value,
         this[Events.day],

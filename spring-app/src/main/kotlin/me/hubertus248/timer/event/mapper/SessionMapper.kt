@@ -45,6 +45,9 @@ class SessionMapper {
         Sessions.select { (Sessions.id eq sessionId) and (Sessions.userId eq userId) }
             .count() > 0
 
+    fun deleteSession(sessionId: Long) =
+        Sessions.deleteWhere { Sessions.id eq sessionId }
+
     private fun ResultRow.asSession(): Session = Session(
         this[Sessions.id].value,
         this[Sessions.userId],

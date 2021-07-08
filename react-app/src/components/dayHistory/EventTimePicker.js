@@ -24,14 +24,16 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1)
   },
   splitButton: {
-    marginTop: '-5px'
+    marginTop: '-5px',
+    marginRight: theme.spacing(1)
   },
   hover: {
     '& .showOnHover': {
-      display: "none"
+      opacity: 0,
+      transition: "200ms all"
     },
     '&:hover .showOnHover': {
-      display: "inline"
+      opacity: 1
     }
   }
 }))

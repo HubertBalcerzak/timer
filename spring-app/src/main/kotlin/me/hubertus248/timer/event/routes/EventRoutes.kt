@@ -19,6 +19,7 @@ import me.hubertus248.timer.event.service.EventService
 import me.hubertus248.timer.event.service.SessionService
 import me.hubertus248.timer.task.service.TaskService
 import org.koin.ktor.ext.inject
+import java.net.http.HttpResponse
 import java.time.Instant
 import java.time.ZonedDateTime
 
@@ -54,6 +55,11 @@ fun Route.eventRouting() {
             post("/{eventId}/split") {
                 val eventId = call.parameters["eventId"]?.toLongOrNull() ?: throw BadRequestException()
                 sessionService.splitSession(eventId, keycloakPrincipal)
+                call.respond(HttpStatusCode.OK)
+            }
+            post("/{eventId}/merge") {
+                val eventId = call.parameters["eventId"]?.toLongOrNull() ?: throw BadRequestException()
+                sessionService.mergeSessions(eventId, keycloakPrincipal)
                 call.respond(HttpStatusCode.OK)
             }
         }

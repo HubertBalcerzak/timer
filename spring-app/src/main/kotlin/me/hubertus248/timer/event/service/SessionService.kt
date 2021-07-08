@@ -26,7 +26,7 @@ interface SessionService {
 
     fun splitSession(eventId: Long, principal: KeycloakPrincipal)
 
-    fun mergeSessions(sessionId: Long, principal: KeycloakPrincipal)
+    fun mergeSessions(eventId: Long, principal: KeycloakPrincipal)
 }
 
 class SessionServiceImpl : SessionService, KoinComponent {
@@ -74,10 +74,20 @@ class SessionServiceImpl : SessionService, KoinComponent {
         log.info("Session ${session.id} split on event ${lastEvent.id}")
     }
 
-    override fun mergeSessions(sessionId: Long, principal: KeycloakPrincipal) {
-        sessionValidationService.checkSessionExists(sessionId, userService.getUserId(principal))
+    override fun mergeSessions(eventId: Long, principal: KeycloakPrincipal): Unit = transaction {
+        val userId = userService.getUserId(principal)
+        eventValidationService.checkEventExists(eventId, userId)
 
-
-
+        val session = sessionMapper.getEventSession(eventId)
+        val daySessions = sessionMapper.getDaySessions(session.day, userId)
+        val index = daySessions.indexOf(session)
+        if (index == daySessions.size - 1) {
+            throw BadRequestException()
+        }
+        sessionValidationService.checkSessionMergePossible(session.id, daySessions[index + 1].id)
+        eventMapper.getEventsInSession(daySessions[index + 1].id).forEach { event ->
+            eventMapper.updateEvent(event.copy(sessionId = session.id))
+        }
+        sessionMapper.deleteSession(daySessions[index + 1].id)
     }
 }

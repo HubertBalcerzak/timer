@@ -1,6 +1,6 @@
-import {Box, makeStyles, TextField, Typography} from "@material-ui/core";
-import {useQuery, useQueryClient} from "react-query";
-import {GET_EVENTS, getEvents, updateEventEnd, updateEventStart} from "../../api/events";
+import {Box, IconButton, makeStyles, Typography} from "@material-ui/core";
+import {useMutation, useQuery, useQueryClient} from "react-query";
+import {GET_EVENTS, getEvents, mergeSessions, updateEventEnd, updateEventStart} from "../../api/events";
 import {
   Timeline,
   TimelineConnector,
@@ -9,18 +9,30 @@ import {
   TimelineItem, TimelineOppositeContent,
   TimelineSeparator
 } from "@material-ui/lab";
-import {format} from "date-fns";
 import EventTimePicker from "./EventTimePicker";
+import {CallMerge} from "@material-ui/icons";
+import {GET_TASKS} from "../../api/tasks";
+import {toast} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const useStyles = makeStyles(theme => ({
   taskName: {
     paddingTop: "2em"
+  },
+  lastTimelineItem: {
+    height: "20px",
+    minHeight: 0
+  },
+  hover: {
+    '& .showMergeOnHover': {
+      opacity: 0,
+      transition: "200ms all"
+    },
+    '&:hover .showMergeOnHover': {
+      opacity: 1
+    }
   }
 }))
-
-const formatDate = (epochSeconds) => {
-  return format(new Date(epochSeconds * 1000), 'HH:mm:ss')
-}
 
 const getStartTimePicker = (ev) => (
   <EventTimePicker selectedTime={new Date(ev.start * 1000)} eventId={ev.id}
@@ -38,38 +50,59 @@ const DayHistoryCard = ({selectedDate}) => {
 
   const getEventsQuery = useQuery([GET_EVENTS, selectedDate], getEvents)
 
+  const mergeSessionsQuery = useMutation(mergeSessions, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(GET_TASKS)
+      queryClient.invalidateQueries(GET_EVENTS)
+    },
+    onError: () => {
+      toast.error("Unable to merge sessions")
+    }
+  })
 
+  const handleMergeSessions = (eventId) => {
+    mergeSessionsQuery.mutate(eventId)
+  }
   return (
     <Box m={3}>
       <Typography variant={"h6"}>Day history</Typography>
 
-      {getEventsQuery.isSuccess && getEventsQuery.data.sessions.map(session =>
-        <Timeline>
-          {session.events.map(event =>
-            <TimelineItem>
-              <TimelineOppositeContent>
-                <Box>
-                  {getStartTimePicker(event)}
-                </Box>
-              </TimelineOppositeContent>
-              <TimelineSeparator>
+      {getEventsQuery.isSuccess && getEventsQuery.data.sessions.map((session, index) =>
+        <Box className={classes.hover}>
+          <Timeline>
+            {session.events.map(event =>
+              <TimelineItem>
+                <TimelineOppositeContent>
+                  <Box>
+                    {getStartTimePicker(event)}
+                  </Box>
+                </TimelineOppositeContent>
+                <TimelineSeparator>
+                  <TimelineDot/>
+                  <TimelineConnector/>
+                </TimelineSeparator>
+                <TimelineContent>
+                  <Box className={classes.taskName}>
+                    {event.taskName}
+                  </Box>
+                </TimelineContent>
+              </TimelineItem>)}
+            <TimelineItem className={classes.lastTimelineItem}>
+              <TimelineOppositeContent
+                className={classes.lastTimelineItem}>{session.events[session.events.length - 1].end ? getEndTimePicker(session.events[session.events.length - 1]) : "Now"}</TimelineOppositeContent>
+              <TimelineSeparator className={classes.lastTimelineItem}>
                 <TimelineDot/>
-                <TimelineConnector/>
               </TimelineSeparator>
-              <TimelineContent>
-                <Box className={classes.taskName}>
-                  {event.taskName}
-                </Box>
-              </TimelineContent>
-            </TimelineItem>)}
-          <TimelineItem>
-            <TimelineOppositeContent>{session.events[session.events.length - 1].end ? getEndTimePicker(session.events[session.events.length - 1]) : "Now"}</TimelineOppositeContent>
-            <TimelineSeparator>
-              <TimelineDot/>
-            </TimelineSeparator>
-            <TimelineContent> </TimelineContent>
-          </TimelineItem>
-        </Timeline>
+              <TimelineContent className={classes.lastTimelineItem}> </TimelineContent>
+            </TimelineItem>
+          </Timeline>
+          {index < getEventsQuery.data.sessions.length - 1 && <Box display={"flex"} justifyContent={"center"}>
+            <IconButton size={"small"} className={'showMergeOnHover'}
+                        onClick={() => handleMergeSessions(session.events[session.events.length - 1].id)}>
+              <CallMerge/>
+            </IconButton>
+          </Box>}
+        </Box>
       )}
     </Box>
   )
